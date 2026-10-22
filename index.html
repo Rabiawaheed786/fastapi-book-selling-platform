@@ -1,0 +1,3165 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniBookStore | Campus Marketplace</title>
+  <meta name="description" content="Peer-to-peer campus book marketplace powered by FastAPI. Buy, sell, and exchange textbooks directly with fellow university students.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       CSS Variables & Design System (Light & Dark Mode)
+       ========================================================================== */
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Playfair Display', Georgia, serif;
+
+      /* Primary Brand: Deep Forest / Emerald Campus Palette */
+      --brand-primary: #0f766e;
+      --brand-primary-hover: #0d5f58;
+      --brand-secondary: #059669;
+      --brand-accent: #10b981;
+      --brand-accent-glow: rgba(16, 185, 129, 0.25);
+      --brand-soft: #ecfdf5;
+
+      /* Neutral Palette (Light) */
+      --bg-app: #f4f7f5;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #ffffff;
+      --bg-subtle: #f0f4f2;
+      --border-subtle: #e2e8e5;
+      --border-strong: #cbd5e1;
+
+      /* Text Colors */
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      --text-inverse: #ffffff;
+
+      /* Status Colors */
+      --status-success: #059669;
+      --status-success-bg: #d1fae5;
+      --status-warning: #d97706;
+      --status-warning-bg: #fef3c7;
+      --status-danger: #dc2626;
+      --status-danger-bg: #fee2e2;
+
+      /* Condition Badges */
+      --badge-new-bg: #ecfdf5;
+      --badge-new-text: #047857;
+      --badge-good-bg: #fef3c7;
+      --badge-good-text: #b45309;
+      --badge-read-bg: #e0f2fe;
+      --badge-read-text: #0369a1;
+      --badge-bad-bg: #f3f4f6;
+      --badge-bad-text: #4b5563;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.07), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 12px 28px -4px rgba(15, 118, 110, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+      --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-full: 9999px;
+
+      --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Dark Mode Palette (Sophisticated Obsidian & Mint) */
+    [data-theme="dark"] {
+      --brand-primary: #10b981;
+      --brand-primary-hover: #34d399;
+      --brand-secondary: #059669;
+      --brand-accent: #34d399;
+      --brand-accent-glow: rgba(52, 211, 153, 0.3);
+      --brand-soft: rgba(16, 185, 129, 0.15);
+
+      --bg-app: #0d1413;
+      --bg-surface: #141f1c;
+      --bg-surface-elevated: #1a2925;
+      --bg-subtle: #1c2b27;
+      --border-subtle: #243933;
+      --border-strong: #334d45;
+
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-light: #64748b;
+      --text-inverse: #0d1413;
+
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+      --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.6);
+      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.45);
+
+      --badge-new-bg: rgba(16, 185, 129, 0.2);
+      --badge-new-text: #6ee7b7;
+      --badge-good-bg: rgba(245, 158, 11, 0.2);
+      --badge-good-text: #fcd34d;
+      --badge-read-bg: rgba(56, 189, 248, 0.2);
+      --badge-read-text: #7dd3fc;
+      --badge-bad-bg: rgba(156, 163, 175, 0.2);
+      --badge-bad-text: #d1d5db;
+    }
+
+    /* ==========================================================================
+       Reset & Base Setup
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ==========================================================================
+       Top Navigation Bar
+       ========================================================================== */
+    .navbar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      gap: 16px;
+    }
+
+    /* Brand Logo */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 10px var(--brand-accent-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--text-main);
+    }
+
+    .brand-text span {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--brand-primary);
+      text-transform: uppercase;
+      display: block;
+    }
+
+    /* Quick Search in Navbar */
+    .nav-search {
+      flex: 1;
+      max-width: 320px;
+      position: relative;
+      display: none;
+    }
+
+    @media (min-width: 900px) {
+      .nav-search {
+        display: block;
+      }
+    }
+
+    .nav-search input {
+      width: 100%;
+      padding: 8px 14px 8px 36px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      font-size: 0.88rem;
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .nav-search input:focus {
+      border-color: var(--brand-accent);
+      background: var(--bg-surface);
+      box-shadow: 0 0 0 3px var(--brand-accent-glow);
+    }
+
+    .nav-search .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      pointer-events: none;
+    }
+
+    /* Nav Actions Cluster */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* API Status Pill */
+    .api-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: var(--transition);
+    }
+
+    .api-status-badge:hover {
+      border-color: var(--border-strong);
+      color: var(--text-main);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #94a3b8;
+      position: relative;
+    }
+
+    .status-dot.connected {
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .status-dot.connected::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.4);
+      animation: pulseGlow 2s infinite;
+    }
+
+    .status-dot.error {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+
+    /* Wishlist Counter Button */
+    .saved-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .saved-badge:hover {
+      color: #e11d48;
+      border-color: #fecdd3;
+    }
+
+    .saved-count {
+      background: #f43f5e;
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: var(--radius-full);
+    }
+
+    /* Active User Profile Pill */
+    .user-profile-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .user-profile-pill:hover {
+      border-color: var(--brand-accent);
+      background: var(--brand-soft);
+    }
+
+    .user-avatar-sm {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Primary Action Buttons */
+    .btn-sell {
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      color: white;
+      font-weight: 700;
+      font-size: 0.88rem;
+      padding: 9px 18px;
+      border-radius: var(--radius-full);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--brand-accent-glow);
+      transition: var(--transition);
+    }
+
+    .btn-sell:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px var(--brand-accent-glow);
+      filter: brightness(1.06);
+    }
+
+    .btn-join {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-strong);
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-join:hover {
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+      background: var(--brand-soft);
+    }
+
+    /* Icon Buttons (Theme & Settings) */
+    .btn-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-icon:hover {
+      color: var(--text-main);
+      border-color: var(--border-strong);
+      background: var(--bg-surface);
+    }
+
+    /* ==========================================================================
+       Sub-Navigation Bar (Tabs & View Controls)
+       ========================================================================== */
+    .subnav-bar {
+      margin-top: 24px;
+      margin-bottom: 20px;
+    }
+
+    .subnav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-subtle);
+    }
+
+    .tab-btn.active {
+      background: var(--brand-primary);
+      color: white;
+      box-shadow: 0 4px 14px var(--brand-accent-glow);
+    }
+
+    [data-theme="dark"] .tab-btn.active {
+      background: var(--brand-primary);
+      color: #0b1210;
+    }
+
+    .view-toggles {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-surface);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .view-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .view-btn.active {
+      background: var(--bg-subtle);
+      color: var(--brand-primary);
+    }
+
+    /* ==========================================================================
+       Category Pills Bar
+       ========================================================================== */
+    .categories-bar {
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+    }
+
+    .categories-bar::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .categories-bar::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 4px;
+    }
+
+    .category-pills {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: max-content;
+    }
+
+    .cat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .cat-pill:hover {
+      border-color: var(--brand-accent);
+      color: var(--text-main);
+    }
+
+    .cat-pill.active {
+      background: var(--brand-primary);
+      color: white;
+      border-color: var(--brand-primary);
+      box-shadow: 0 4px 10px var(--brand-accent-glow);
+    }
+
+    [data-theme="dark"] .cat-pill.active {
+      background: var(--brand-primary);
+      color: #0b1210;
+    }
+
+    /* ==========================================================================
+       Filter Box Card
+       ========================================================================== */
+    .filter-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 28px;
+      transition: var(--transition);
+    }
+
+    .filter-row-top {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    @media (min-width: 768px) {
+      .filter-row-top {
+        grid-template-columns: 2fr 1fr 1.2fr auto;
+      }
+    }
+
+    .filter-input-wrap {
+      position: relative;
+    }
+
+    .filter-input-wrap input {
+      width: 100%;
+      padding: 11px 16px 11px 42px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .filter-input-wrap input:focus {
+      border-color: var(--brand-accent);
+      background: var(--bg-surface);
+      box-shadow: 0 0 0 3px var(--brand-accent-glow);
+    }
+
+    .filter-input-wrap .icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      pointer-events: none;
+    }
+
+    .filter-select {
+      width: 100%;
+      padding: 11px 16px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-select:focus {
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 3px var(--brand-accent-glow);
+    }
+
+    .btn-refresh {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 18px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-refresh:hover {
+      background: var(--bg-surface);
+      border-color: var(--brand-accent);
+      color: var(--brand-primary);
+    }
+
+    .btn-refresh.spinning svg {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Sub Filters Row */
+    .filter-row-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.84rem;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-right: 2px;
+    }
+
+    .chip-filter {
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: var(--transition);
+    }
+
+    .chip-filter:hover {
+      border-color: var(--brand-accent);
+      color: var(--text-main);
+    }
+
+    .chip-filter.active {
+      background: var(--brand-soft);
+      border-color: var(--brand-accent);
+      color: var(--brand-primary);
+    }
+
+    [data-theme="dark"] .chip-filter.active {
+      color: var(--brand-accent);
+    }
+
+    .checkbox-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .checkbox-wrap input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--brand-primary);
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       Marketplace Status Bar & Counter
+       ========================================================================== */
+    .status-summary-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .books-counter {
+      font-size: 0.96rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .books-counter strong {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .active-tag-pills {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .active-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--brand-soft);
+      border: 1px solid var(--brand-accent);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--brand-primary);
+    }
+
+    .active-pill button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ==========================================================================
+       Book Cards Grid & List View
+       ========================================================================== */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 50px;
+    }
+
+    @media (min-width: 1200px) {
+      .books-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* Book Card Container */
+    .book-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .book-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    /* Card Cover Visual */
+    .card-cover {
+      height: 220px;
+      position: relative;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    /* Realistic Procedural Book Jacket */
+    .jacket-spine {
+      width: 130px;
+      height: 180px;
+      border-radius: 4px 10px 10px 4px;
+      position: relative;
+      box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.25), inset 6px 0 10px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px 12px;
+      color: white;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .book-card:hover .jacket-spine {
+      transform: scale(1.04) rotate(-1deg);
+    }
+
+    .jacket-spine::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .jacket-category {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.85;
+      font-weight: 700;
+    }
+
+    .jacket-title {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    .jacket-author {
+      font-size: 0.64rem;
+      opacity: 0.85;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Badges on Cover */
+    .cover-top-row {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 2;
+    }
+
+    .condition-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(6px);
+    }
+
+    .condition-badge.new {
+      background: var(--badge-new-bg);
+      color: var(--badge-new-text);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .condition-badge.good {
+      background: var(--badge-good-bg);
+      color: var(--badge-good-text);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .condition-badge.old, .condition-badge.read {
+      background: var(--badge-read-bg);
+      color: var(--badge-read-text);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .condition-badge.bad {
+      background: var(--badge-bad-bg);
+      color: var(--badge-bad-text);
+      border: 1px solid rgba(156, 163, 175, 0.4);
+    }
+
+    .btn-heart {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #94a3b8;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      transition: var(--transition);
+    }
+
+    [data-theme="dark"] .btn-heart {
+      background: rgba(20, 31, 28, 0.85);
+      color: #94a3b8;
+    }
+
+    .btn-heart:hover {
+      transform: scale(1.12);
+      color: #e11d48;
+    }
+
+    .btn-heart.saved {
+      color: #e11d48;
+    }
+
+    /* Sold Ribbon */
+    .sold-ribbon {
+      position: absolute;
+      top: 24px;
+      right: -32px;
+      transform: rotate(45deg);
+      background: #dc2626;
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 38px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      z-index: 3;
+    }
+
+    /* Card Details Body */
+    .card-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .book-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.35;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 2.7em;
+    }
+
+    .book-author {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .seller-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      padding: 5px 10px;
+      border-radius: var(--radius-md);
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      width: fit-content;
+    }
+
+    .seller-initial {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--brand-secondary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+
+    /* Price Section */
+    .card-pricing {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border-subtle);
+      margin-bottom: 16px;
+    }
+
+    .pricing-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-size: 0.75rem;
+    }
+
+    .original-price {
+      color: var(--text-light);
+      text-decoration: line-through;
+    }
+
+    .save-badge {
+      background: var(--brand-soft);
+      color: var(--brand-primary);
+      font-weight: 700;
+      font-size: 0.72rem;
+      padding: 1px 7px;
+      border-radius: var(--radius-full);
+    }
+
+    .price-main-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .current-price {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--brand-primary);
+      letter-spacing: -0.02em;
+    }
+
+    [data-theme="dark"] .current-price {
+      color: var(--brand-accent);
+    }
+
+    .meetup-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      line-height: 1.1;
+    }
+
+    .meetup-tag span {
+      color: var(--status-success);
+      font-weight: 700;
+    }
+
+    /* Card Action Buttons */
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-details {
+      padding: 9px 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-details:hover {
+      background: var(--bg-surface);
+      border-color: var(--border-strong);
+    }
+
+    .btn-buy {
+      padding: 9px 12px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+      transition: var(--transition);
+    }
+
+    .btn-buy:hover {
+      background: #059669;
+      box-shadow: 0 6px 14px rgba(16, 185, 129, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* Manage Buttons for User Listings */
+    .manage-actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .btn-action-sm {
+      padding: 6px 4px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      cursor: pointer;
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .btn-action-sm:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-surface);
+    }
+
+    .btn-action-sm.danger:hover {
+      background: #fee2e2;
+      border-color: #f87171;
+      color: #b91c1c;
+    }
+
+    /* List View Format */
+    .books-grid.list-view {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .books-grid.list-view .book-card {
+      flex-direction: row;
+      height: 180px;
+    }
+
+    .books-grid.list-view .card-cover {
+      width: 170px;
+      height: 100%;
+      flex-shrink: 0;
+    }
+
+    .books-grid.list-view .jacket-spine {
+      width: 90px;
+      height: 130px;
+    }
+
+    .books-grid.list-view .card-body {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 20px;
+    }
+
+    .books-grid.list-view .card-info-col {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .books-grid.list-view .card-pricing {
+      margin: 0;
+      border: none;
+      padding: 0;
+      min-width: 170px;
+    }
+
+    .books-grid.list-view .card-actions-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 150px;
+    }
+
+    /* ==========================================================================
+       Empty State & Skeletons
+       ========================================================================== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 1px dashed var(--border-strong);
+      margin: 20px 0;
+    }
+
+    .empty-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      background: var(--brand-soft);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand-primary);
+    }
+
+    .empty-state h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      max-width: 420px;
+      margin: 0 auto 18px;
+    }
+
+    /* Skeleton Loading */
+    .skeleton-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      height: 420px;
+      animation: skeletonPulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes skeletonPulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 0.3; }
+      100% { opacity: 0.6; }
+    }
+
+    /* ==========================================================================
+       Modals & Popups
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalSlideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h2 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-close-modal {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .btn-close-modal:hover {
+      background: var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      border-color: var(--brand-accent);
+      background: var(--bg-surface);
+      box-shadow: 0 0 0 3px var(--brand-accent-glow);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-footer {
+      padding: 18px 24px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      padding: 10px 18px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border-subtle);
+    }
+
+    .btn-primary {
+      padding: 10px 22px;
+      background: var(--brand-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 10px var(--brand-accent-glow);
+      transition: var(--transition);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       Toast Notifications
+       ========================================================================== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      min-width: 280px;
+      max-width: 400px;
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .toast.success {
+      border-left: 4px solid var(--status-success);
+    }
+
+    .toast.error {
+      border-left: 4px solid var(--status-danger);
+    }
+
+    .toast.info {
+      border-left: 4px solid var(--brand-accent);
+    }
+
+    @keyframes toastIn {
+      from { transform: translateX(50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ==========================================================================
+       Footer
+       ========================================================================== */
+    footer {
+      margin-top: auto;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      padding: 30px 0;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a:hover {
+      color: var(--brand-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       Top Navigation Bar
+       ========================================================================== -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <!-- Logo -->
+      <a href="#" class="brand" onclick="navigateTab('marketplace'); return false;">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>UniBookStore</h1>
+          <span>CAMPUS MARKETPLACE</span>
+        </div>
+      </a>
+
+      <!-- Quick Search (Desktop) -->
+      <div class="nav-search">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="navQuickSearch" placeholder="Quick search..." oninput="handleQuickSearch(this.value)">
+      </div>
+
+      <!-- Action Cluster -->
+      <div class="nav-actions">
+        <!-- Live API Status Indicator -->
+        <div class="api-status-badge" id="apiStatusBadge" onclick="openModal('settingsModal')" title="Click to view API Configuration">
+          <span class="status-dot" id="apiStatusDot"></span>
+          <span id="apiStatusText">Checking API...</span>
+        </div>
+
+        <!-- Saved Wishlist Badge -->
+        <div class="saved-badge" id="savedWishlistBadge" onclick="navigateTab('wishlist')" title="View saved books">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span>Saved</span>
+          <span class="saved-count" id="savedCount">0</span>
+        </div>
+
+        <!-- Active Student Profile Pill -->
+        <div class="user-profile-pill" id="userProfilePill" onclick="openModal('profileSwitcherModal')" title="Switch active student">
+          <div class="user-avatar-sm" id="userAvatar">F</div>
+          <span id="userNameDisplay">fatima (ID #1)</span>
+        </div>
+
+        <!-- + Sell a Book Button -->
+        <button class="btn-sell" onclick="openModal('sellBookModal')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Sell a Book</span>
+        </button>
+
+        <!-- + Join Student Button -->
+        <button class="btn-join" onclick="openModal('joinUserModal')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7.5" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+          <span>Join</span>
+        </button>
+
+        <!-- Settings Gear Button -->
+        <button class="btn-icon" onclick="openModal('settingsModal')" title="API Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+
+        <!-- Theme Toggle Button -->
+        <button class="btn-icon" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+          <svg id="themeIconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="themeIconMoon" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Main App Layout
+       ========================================================================== */ -->
+  <main class="container" style="flex: 1;">
+
+    <!-- Sub-Navigation (Campus Marketplace / My Student Listings / Wishlist + View Toggle) -->
+    <section class="subnav-bar">
+      <div class="subnav-inner">
+        <div class="nav-tabs">
+          <button class="tab-btn active" id="tabMarketplace" onclick="navigateTab('marketplace')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span>Campus Marketplace</span>
+          </button>
+
+          <button class="tab-btn" id="tabMyListings" onclick="navigateTab('my-listings')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>My Student Listings</span>
+          </button>
+        </div>
+
+        <div class="view-toggles">
+          <button class="view-btn active" id="btnGridView" onclick="setViewMode('grid')" title="Grid view">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </button>
+          <button class="view-btn" id="btnListView" onclick="setViewMode('list')" title="List view">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Category Pills Bar -->
+    <section class="categories-bar">
+      <div class="category-pills" id="categoryPills">
+        <div class="cat-pill active" onclick="setCategory('all', this)">📚 All Textbooks</div>
+        <div class="cat-pill" onclick="setCategory('cs', this)">💻 Computer Science & IT</div>
+        <div class="cat-pill" onclick="setCategory('business', this)">📈 Business & Finance</div>
+        <div class="cat-pill" onclick="setCategory('self-help', this)">🧠 Self-Growth & Psychology</div>
+        <div class="cat-pill" onclick="setCategory('engineering', this)">📐 Engineering & Math</div>
+        <div class="cat-pill" onclick="setCategory('literature', this)">📖 Literature & English</div>
+      </div>
+    </section>
+
+    <!-- Search & Filter Card -->
+    <section class="filter-card">
+      <div class="filter-row-top">
+        <!-- Main Search Bar -->
+        <div class="filter-input-wrap">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="filterSearchInput" placeholder="Search by book title, author, or keyword (e.g. Python, Habits, Clean)" oninput="handleSearchInput(this.value)">
+        </div>
+
+        <!-- Sort By Dropdown -->
+        <div>
+          <select class="filter-select" id="sortSelect" onchange="handleSortChange(this.value)">
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="title-asc">Title: A to Z</option>
+          </select>
+        </div>
+
+        <!-- Active Student Profile Selector -->
+        <div>
+          <select class="filter-select" id="activeStudentSelect" onchange="handleStudentProfileChange(this.value)">
+            <!-- Populated dynamically with student profiles -->
+          </select>
+        </div>
+
+        <!-- Refresh Button -->
+        <button class="btn-refresh" id="btnRefresh" onclick="refreshCurrentView()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      <!-- Sub-Filters: Condition, Price, and Hide Sold Books Checkbox -->
+      <div class="filter-row-bottom">
+        <!-- Condition Filter Chips -->
+        <div class="filter-group">
+          <span class="filter-label">Condition:</span>
+          <span class="chip-filter active" onclick="setConditionFilter('all', this)">All</span>
+          <span class="chip-filter" onclick="setConditionFilter('New', this)">✨ Mint (New)</span>
+          <span class="chip-filter" onclick="setConditionFilter('Good', this)">🔥 Good Condition</span>
+          <span class="chip-filter" onclick="setConditionFilter('Old', this)">📖 Well Read</span>
+          <span class="chip-filter" onclick="setConditionFilter('Bad', this)">⚠️ Fair (Used)</span>
+        </div>
+
+        <!-- Price Range Filter Chips -->
+        <div class="filter-group">
+          <span class="filter-label">Price:</span>
+          <span class="chip-filter active" onclick="setPriceFilter('all', this)">All Prices</span>
+          <span class="chip-filter" onclick="setPriceFilter('under1000', this)">&lt; Rs. 1,000</span>
+          <span class="chip-filter" onclick="setPriceFilter('1000-2000', this)">Rs. 1K - 2K</span>
+          <span class="chip-filter" onclick="setPriceFilter('over2000', this)">&gt; Rs. 2,000</span>
+        </div>
+
+        <!-- Hide Sold Books Checkbox -->
+        <div>
+          <label class="checkbox-wrap">
+            <input type="checkbox" id="hideSoldCheckbox" checked onchange="handleHideSoldToggle(this.checked)">
+            <span>Hide Sold Books</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Status & Results Counter Bar -->
+    <section class="status-summary-bar">
+      <div class="books-counter" id="booksCounter">
+        Showing <strong>0 textbooks</strong> available across campus
+      </div>
+      <div class="active-tag-pills" id="activeFilterTags"></div>
+    </section>
+
+    <!-- Book Grid / List View Container -->
+    <section class="books-grid" id="booksContainer">
+      <!-- Loading skeletons initially injected by JS -->
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       Footer
+       ========================================================================== -->
+  <footer>
+    <div class="container footer-inner">
+      <div>
+        <strong>UniBookStore Campus Marketplace</strong> &bull; Powered by FastAPI backend on port 8000
+      </div>
+      <div class="footer-links">
+        <a href="#" onclick="openModal('settingsModal'); return false;">API Settings</a>
+        <a href="#" onclick="openModal('joinUserModal'); return false;">Register Student</a>
+        <a href="#" onclick="openModal('sellBookModal'); return false;">List Textbook</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       MODAL 1: Sell a Book Modal (+ Sell a Book)
+       ========================================================================== -->
+  <div class="modal-overlay" id="sellBookModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>List a Book for Campus Sale</h2>
+        <button class="btn-close-modal" onclick="closeModal('sellBookModal')">&times;</button>
+      </div>
+      <form id="sellBookForm" onsubmit="handleCreateBookSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="newBookTitle">Book Title *</label>
+            <input type="text" id="newBookTitle" class="form-control" placeholder="e.g. Introduction to Algorithms, Atomic Habits" required>
+          </div>
+
+          <div class="form-group">
+            <label for="newBookAuthor">Author Name *</label>
+            <input type="text" id="newBookAuthor" class="form-control" placeholder="e.g. Thomas H. Cormen, James Clear" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="newBookPrice">Selling Price (Rs.) *</label>
+              <input type="number" id="newBookPrice" class="form-control" placeholder="e.g. 1500" min="50" step="50" required>
+            </div>
+            <div class="form-group">
+              <label for="newBookCondition">Physical Condition *</label>
+              <select id="newBookCondition" class="form-control" required>
+                <option value="New">✨ Mint / Like New</option>
+                <option value="Good" selected>🔥 Good Condition</option>
+                <option value="Old">📖 Well Read / Used</option>
+                <option value="Bad">⚠️ Fair / Heavy Notes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="newBookUserId">Seller Student ID *</label>
+            <input type="number" id="newBookUserId" class="form-control" min="1" required>
+            <small style="color: var(--text-muted); font-size: 0.78rem;">Automatically filled with your active student ID.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('sellBookModal')">Cancel</button>
+          <button type="submit" class="btn-primary" id="btnSubmitSellBook">List Textbook Now</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: Join / Register Student Profile (+ Join)
+       ========================================================================== -->
+  <div class="modal-overlay" id="joinUserModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>Join Campus Marketplace</h2>
+        <button class="btn-close-modal" onclick="closeModal('joinUserModal')">&times;</button>
+      </div>
+      <form id="joinUserForm" onsubmit="handleCreateUserSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="regUsername">Select Student Username *</label>
+            <select id="regUsername" class="form-control" required>
+              <option value="fatima">fatima</option>
+              <option value="zara">zara</option>
+              <option value="rabia">rabia</option>
+              <option value="raza">raza</option>
+              <option value="bilal">bilal</option>
+              <option value="taha">taha</option>
+              <option value="zainab">zainab</option>
+              <option value="sara">sara</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="regEmail">Campus Email Address *</label>
+            <input type="email" id="regEmail" class="form-control" placeholder="e.g. hamza@student.ku.edu.pk" required>
+          </div>
+
+          <div class="form-group">
+            <label for="regUniName">University / Campus Name *</label>
+            <input type="text" id="regUniName" class="form-control" placeholder="e.g. University of Karachi, NED, FAST NUCES" required>
+          </div>
+
+          <div class="form-group">
+            <label for="regPhone">WhatsApp / Phone Number *</label>
+            <input type="tel" id="regPhone" class="form-control" placeholder="e.g. 03001234567" required>
+            <small style="color: var(--text-muted); font-size: 0.78rem;">Used by campus peers to contact you via WhatsApp for physical book handoffs.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('joinUserModal')">Cancel</button>
+          <button type="submit" class="btn-primary" id="btnSubmitJoinUser">Create Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: Book Details Modal
+       ========================================================================== -->
+  <div class="modal-overlay" id="bookDetailsModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>Textbook Overview</h2>
+        <button class="btn-close-modal" onclick="closeModal('bookDetailsModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="bookDetailsContent">
+        <!-- Rendered dynamically by showBookDetails() -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('bookDetailsModal')">Close</button>
+        <button type="button" class="btn-primary" id="btnDetailsBuyWhatsApp" style="background:#10b981; display:inline-flex; align-items:center; gap:6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/>
+          </svg>
+          WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: Edit Book Modal (PATCH /book/{id})
+       ========================================================================== -->
+  <div class="modal-overlay" id="editBookModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>Edit Textbook Listing</h2>
+        <button class="btn-close-modal" onclick="closeModal('editBookModal')">&times;</button>
+      </div>
+      <form id="editBookForm" onsubmit="handleUpdateBookSubmit(event)">
+        <input type="hidden" id="editBookId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editBookTitle">Book Title *</label>
+            <input type="text" id="editBookTitle" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="editBookAuthor">Author Name *</label>
+            <input type="text" id="editBookAuthor" class="form-control" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editBookPrice">Selling Price (Rs.) *</label>
+              <input type="number" id="editBookPrice" class="form-control" min="50" step="50" required>
+            </div>
+            <div class="form-group">
+              <label for="editBookCondition">Condition *</label>
+              <select id="editBookCondition" class="form-control" required>
+                <option value="New">✨ Mint / Like New</option>
+                <option value="Good">🔥 Good Condition</option>
+                <option value="Old">📖 Well Read / Used</option>
+                <option value="Bad">⚠️ Fair / Heavy Notes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editBookUserId">Seller Student ID *</label>
+              <input type="number" id="editBookUserId" class="form-control" min="1" required>
+            </div>
+            <div class="form-group">
+              <label for="editBookIsSold">Sold Status</label>
+              <select id="editBookIsSold" class="form-control">
+                <option value="false">Available (Unsold)</option>
+                <option value="true">Sold Out</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('editBookModal')">Cancel</button>
+          <button type="submit" class="btn-primary" id="btnSubmitEditBook">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 5: API Settings & Configuration Modal
+       ========================================================================== -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>FastAPI Backend Configuration</h2>
+        <button class="btn-close-modal" onclick="closeModal('settingsModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveSettings(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="cfgApiBaseUrl">FastAPI Base URL</label>
+            <input type="url" id="cfgApiBaseUrl" class="form-control" placeholder="http://127.0.0.1:8000" required>
+            <small style="color: var(--text-muted); font-size: 0.78rem;">Default is http://127.0.0.1:8000.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="cfgApiKey">API Key Header (x-api-key)</label>
+            <input type="text" id="cfgApiKey" class="form-control" placeholder="my_secret_key" required>
+            <small style="color: var(--text-muted); font-size: 0.78rem;">Matches API_KEY in your .env file.</small>
+          </div>
+
+          <div style="background: var(--bg-subtle); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 14px;">
+            <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">Existing Backend Endpoints Used:</div>
+            <ul style="font-size: 0.8rem; color: var(--text-muted); padding-left: 20px; line-height: 1.6;">
+              <li><code>GET /book/</code> &bull; Query limit, offset, and title search</li>
+              <li><code>GET /book/{id}</code> &bull; Single book details</li>
+              <li><code>POST /book/</code> &bull; Create a new book listing</li>
+              <li><code>PATCH /book/{id}</code> &bull; Update book details</li>
+              <li><code>PATCH /book/{id}/is_sold</code> &bull; Toggle sold status</li>
+              <li><code>DELETE /book/{id}</code> &bull; Remove book listing</li>
+              <li><code>GET /book/user/{user_id}</code> &bull; Fetch student listings</li>
+              <li><code>POST /user/</code> &bull; Register student user</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="testApiConnection()">Test Ping</button>
+          <button type="submit" class="btn-primary">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 6: Profile Switcher Modal
+       ========================================================================== -->
+  <div class="modal-overlay" id="profileSwitcherModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>Active Student Profile</h2>
+        <button class="btn-close-modal" onclick="closeModal('profileSwitcherModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px;">
+          Choose which student profile you want to browse and sell as:
+        </p>
+        <div id="profilesListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+          <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Or Enter Any Student ID manually:</label>
+          <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <input type="number" id="manualStudentId" class="form-control" placeholder="e.g. 1, 2, 6" min="1" style="max-width: 140px;">
+            <button type="button" class="btn-primary" onclick="setManualStudentId()">Switch ID</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" onclick="openModal('joinUserModal'); closeModal('profileSwitcherModal');">+ Register New Student</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================================
+       Frontend JavaScript Application Logic
+       ========================================================================== -->
+  <script>
+    /* ==========================================================================
+       Application State
+       ========================================================================== */
+    const AppState = {
+      // API Configuration
+      apiBaseUrl: localStorage.getItem('unibooks_api_url') || (window.location.protocol.startsWith('http') && window.location.port === '8000' ? window.location.origin : 'http://127.0.0.1:8000'),
+      apiKey: localStorage.getItem('unibooks_api_key') || 'my_secret_key',
+
+      // User & Navigation State (Default to student #1 fatima)
+      activeUserId: parseInt(localStorage.getItem('unibooks_active_user_id') || '1', 10),
+      currentTab: 'marketplace', // 'marketplace' | 'my-listings' | 'wishlist'
+      viewMode: localStorage.getItem('unibooks_view_mode') || 'grid',
+
+      // Filters
+      searchQuery: '',
+      selectedCategory: 'all',
+      selectedCondition: 'all',
+      selectedPrice: 'all',
+      hideSold: true,
+      sortBy: 'price-asc',
+
+      // Data Stores
+      marketplaceBooks: [],
+      userListings: [],
+      wishlistIds: JSON.parse(localStorage.getItem('unibooks_wishlist') || '[]'),
+      isApiConnected: false,
+
+      // Strictly permitted student usernames: fatima, zara, rabia, raza, bilal, taha, zainab, sara
+      studentProfiles: [
+        { id: 1, username: 'fatima', uni_name: 'University of Karachi', phone_number: '03001234567', email: 'fatima@ku.edu.pk' },
+        { id: 2, username: 'zara', uni_name: 'NED University', phone_number: '03129876543', email: 'zara@neduet.edu.pk' },
+        { id: 3, username: 'rabia', uni_name: 'Dow Medical University', phone_number: '03335557788', email: 'rabia@duhs.edu.pk' },
+        { id: 4, username: 'raza', uni_name: 'FAST NUCES', phone_number: '03451122334', email: 'raza@nu.edu.pk' },
+        { id: 5, username: 'bilal', uni_name: 'IBA Karachi', phone_number: '03214455667', email: 'bilal@iba.edu.pk' },
+        { id: 6, username: 'taha', uni_name: 'NUST', phone_number: '03027788990', email: 'taha@nust.edu.pk' },
+        { id: 7, username: 'zainab', uni_name: 'Habib University', phone_number: '03153344556', email: 'zainab@habib.edu.pk' },
+        { id: 8, username: 'sara', uni_name: 'Aga Khan University', phone_number: '03318899001', email: 'sara@aku.edu.pk' }
+      ]
+    };
+
+    // Helper: Lookup or map student profile strictly using the specified usernames
+    function getStudentProfile(userId) {
+      const match = AppState.studentProfiles.find(p => p.id === userId);
+      if (match) return match;
+      const allowed = AppState.studentProfiles;
+      const idx = Math.abs((Number(userId) || 1) - 1) % allowed.length;
+      return allowed[idx];
+    }
+
+    /* ==========================================================================
+       Procedural Physical Book Cover Styling Themes
+       Generates realistic, beautiful textbook jackets based on title & author
+       ========================================================================== */
+    const BOOK_JACKET_THEMES = [
+      { bg: 'linear-gradient(135deg, #0f766e, #042f2e)', category: 'Business & Econ', color: '#34d399' },
+      { bg: 'linear-gradient(135deg, #1e3a8a, #0f172a)', category: 'Computer Science', color: '#60a5fa' },
+      { bg: 'linear-gradient(135deg, #701a75, #3b0764)', category: 'Psychology', color: '#f472b6' },
+      { bg: 'linear-gradient(135deg, #831843, #4c0519)', category: 'Literature', color: '#fb7185' },
+      { bg: 'linear-gradient(135deg, #78350f, #451a03)', category: 'Economics & Money', color: '#fbbf24' },
+      { bg: 'linear-gradient(135deg, #134e4a, #042f2e)', category: 'Growth & Habits', color: '#2dd4bf' },
+      { bg: 'linear-gradient(135deg, #1e293b, #090d16)', category: 'Philosophy', color: '#a78bfa' }
+    ];
+
+    function getBookJacketTheme(title, author) {
+      const hash = ((title || '') + (author || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return BOOK_JACKET_THEMES[hash % BOOK_JACKET_THEMES.length];
+    }
+
+    /* ==========================================================================
+       API Service Layer (Direct connection to real FastAPI endpoints)
+       ========================================================================== */
+    async function apiRequest(endpoint, options = {}) {
+      const url = `${AppState.apiBaseUrl.replace(/\/$/, '')}${endpoint}`;
+      const headers = {
+        'x-api-key': AppState.apiKey,
+        'x_api_key': AppState.apiKey,
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      };
+
+      try {
+        const response = await fetch(url, { ...options, headers });
+        if (!response.ok) {
+          let errDetail = 'Request failed';
+          try {
+            const errJson = await response.json();
+            errDetail = errJson.detail || errJson.reason || errJson.message || `HTTP ${response.status}`;
+          } catch (e) {
+            errDetail = `HTTP ${response.status} ${response.statusText}`;
+          }
+          throw new Error(errDetail);
+        }
+        return await response.json();
+      } catch (err) {
+        console.error(`API Error on [${options.method || 'GET'}] ${endpoint}:`, err);
+        throw err;
+      }
+    }
+
+    /* Check API Connection Health */
+    async function checkApiConnection() {
+      const statusBadge = document.getElementById('apiStatusBadge');
+      const statusDot = document.getElementById('apiStatusDot');
+      const statusText = document.getElementById('apiStatusText');
+
+      try {
+        // Query GET /book/?limit=1 to verify connectivity and API key
+        await apiRequest('/book/?limit=1');
+        AppState.isApiConnected = true;
+        statusDot.className = 'status-dot connected';
+        const port = new URL(AppState.apiBaseUrl).port || '8000';
+        statusText.textContent = `API Connected (${port})`;
+      } catch (err) {
+        AppState.isApiConnected = false;
+        statusDot.className = 'status-dot error';
+        statusText.textContent = 'API Offline';
+      }
+    }
+
+    /* Fetch All Marketplace Books (GET /book/?limit=100 & optional title) */
+    async function fetchMarketplaceBooks(titleFilter = '') {
+      try {
+        const query = titleFilter ? `?title=${encodeURIComponent(titleFilter)}&limit=100` : '?limit=100';
+        const res = await apiRequest(`/book/${query}`);
+        AppState.marketplaceBooks = res.book || [];
+        return AppState.marketplaceBooks;
+      } catch (err) {
+        showToast(`Could not fetch books: ${err.message}`, 'error');
+        AppState.marketplaceBooks = [];
+        return [];
+      }
+    }
+
+    /* Fetch Books By User ID (GET /book/user/{user_id}) */
+    async function fetchUserListings(userId) {
+      try {
+        const res = await apiRequest(`/book/user/${userId}`);
+        AppState.userListings = res.book || [];
+        return AppState.userListings;
+      } catch (err) {
+        showToast(`Could not fetch user listings: ${err.message}`, 'error');
+        AppState.userListings = [];
+        return [];
+      }
+    }
+
+    /* ==========================================================================
+       Rendering & Filtering Engine
+       ========================================================================== */
+    function renderApp() {
+      renderStudentDropdown();
+      renderActiveUserProfile();
+      renderActiveFilters();
+
+      const container = document.getElementById('booksContainer');
+      const counter = document.getElementById('booksCounter');
+
+      // Determine active book list based on current tab
+      let listToRender = [];
+      if (AppState.currentTab === 'marketplace') {
+        listToRender = [...AppState.marketplaceBooks];
+      } else if (AppState.currentTab === 'my-listings') {
+        listToRender = [...AppState.userListings];
+      } else if (AppState.currentTab === 'wishlist') {
+        listToRender = AppState.marketplaceBooks.filter(b => AppState.wishlistIds.includes(b.id));
+      }
+
+      // Filter: Search Query (in-memory for instant feedback, also supported via API)
+      if (AppState.searchQuery.trim()) {
+        const q = AppState.searchQuery.toLowerCase();
+        listToRender = listToRender.filter(b => 
+          (b.title && b.title.toLowerCase().includes(q)) ||
+          (b.author && b.author.toLowerCase().includes(q)) ||
+          (b.condition && b.condition.toLowerCase().includes(q))
+        );
+      }
+
+      // Filter: Category Pill
+      if (AppState.selectedCategory !== 'all') {
+        listToRender = listToRender.filter(b => {
+          const t = (b.title + ' ' + b.author).toLowerCase();
+          switch (AppState.selectedCategory) {
+            case 'cs':
+              return t.includes('python') || t.includes('algorithm') || t.includes('code') || t.includes('program') || t.includes('django') || t.includes('web') || t.includes('data');
+            case 'business':
+              return t.includes('money') || t.includes('rich') || t.includes('finance') || t.includes('business') || t.includes('dad');
+            case 'self-help':
+              return t.includes('habit') || t.includes('ikigai') || t.includes('psychology') || t.includes('effective') || t.includes('people') || t.includes('mind');
+            case 'engineering':
+              return t.includes('math') || t.includes('engineer') || t.includes('physic') || t.includes('circuit');
+            case 'literature':
+              return t.includes('alchemist') || t.includes('english') || t.includes('novel') || t.includes('story');
+            default:
+              return true;
+          }
+        });
+      }
+
+      // Filter: Condition
+      if (AppState.selectedCondition !== 'all') {
+        listToRender = listToRender.filter(b => {
+          const cond = (b.condition || '').toLowerCase();
+          const target = AppState.selectedCondition.toLowerCase();
+          if (target === 'new') return cond.includes('new') || cond.includes('mint');
+          if (target === 'good') return cond.includes('good');
+          if (target === 'old') return cond.includes('old') || cond.includes('read') || cond.includes('used');
+          if (target === 'bad') return cond.includes('bad') || cond.includes('fair');
+          return true;
+        });
+      }
+
+      // Filter: Price Range
+      if (AppState.selectedPrice !== 'all') {
+        listToRender = listToRender.filter(b => {
+          const price = Number(b.price) || 0;
+          if (AppState.selectedPrice === 'under1000') return price < 1000;
+          if (AppState.selectedPrice === '1000-2000') return price >= 1000 && price <= 2000;
+          if (AppState.selectedPrice === 'over2000') return price > 2000;
+          return true;
+        });
+      }
+
+      // Filter: Hide Sold Books
+      if (AppState.hideSold) {
+        listToRender = listToRender.filter(b => !b.is_sold);
+      }
+
+      // Sorting
+      listToRender.sort((a, b) => {
+        const priceA = Number(a.price) || 0;
+        const priceB = Number(b.price) || 0;
+        if (AppState.sortBy === 'price-asc') return priceA - priceB;
+        if (AppState.sortBy === 'price-desc') return priceB - priceA;
+        if (AppState.sortBy === 'newest') return (b.id || 0) - (a.id || 0);
+        if (AppState.sortBy === 'oldest') return (a.id || 0) - (b.id || 0);
+        if (AppState.sortBy === 'title-asc') return (a.title || '').localeCompare(b.title || '');
+        return 0;
+      });
+
+      // Update Counter
+      const contextLabel = AppState.currentTab === 'marketplace' ? 'available across campus' :
+                           AppState.currentTab === 'my-listings' ? `listed under Student ID #${AppState.activeUserId}` :
+                           'in your saved wishlist';
+      counter.innerHTML = `Showing <strong>${listToRender.length} textbook${listToRender.length === 1 ? '' : 's'}</strong> ${contextLabel}`;
+
+      // Handle Empty State
+      if (listToRender.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+              </svg>
+            </div>
+            <h3>No Textbooks Found</h3>
+            <p>${AppState.currentTab === 'my-listings' ? 'You have not listed any textbooks yet. Click "+ Sell a Book" to post your first textbook!' : 'No books matched your active filter or search criteria. Try clearing filters or searching for another title.'}</p>
+            ${AppState.currentTab === 'my-listings' ? 
+              '<button class="btn-sell" onclick="openModal(\'sellBookModal\')" style="margin: 0 auto;">+ Sell a Book</button>' : 
+              '<button class="btn-secondary" onclick="resetAllFilters()">Reset All Filters</button>'
+            }
+          </div>
+        `;
+        return;
+      }
+
+      // Render Cards
+      container.innerHTML = listToRender.map(book => createBookCardHTML(book)).join('');
+    }
+
+    /* Generate HTML for a single book card */
+    function createBookCardHTML(book) {
+      const theme = getBookJacketTheme(book.title, book.author);
+      const isWishlisted = AppState.wishlistIds.includes(book.id);
+      const isOwner = book.user_id === AppState.activeUserId;
+      const condClass = getConditionClass(book.condition);
+      const condLabel = formatConditionLabel(book.condition);
+
+      // Estimated campus retail price & savings computation for realistic display
+      const currentPrice = Number(book.price) || 0;
+      const originalPrice = Math.round(currentPrice * 1.8 / 100) * 100;
+      const savePercent = Math.min(65, Math.max(30, Math.round(((originalPrice - currentPrice) / originalPrice) * 100)));
+
+      // Lookup student seller name strictly from permitted usernames (fatima, zara, rabia, raza, bilal, taha, zainab, sara)
+      const sellerProfile = getStudentProfile(book.user_id);
+      const sellerName = `${sellerProfile.username} &bull; ${sellerProfile.uni_name}`;
+      const sellerInitial = sellerProfile.username.charAt(0).toUpperCase();
+
+      return `
+        <article class="book-card" id="bookCard-${book.id}">
+          <!-- Card Cover Jacket -->
+          <div class="card-cover" style="background: ${theme.bg}15;">
+            <!-- Badges -->
+            <div class="cover-top-row">
+              <span class="condition-badge ${condClass}">${condLabel}</span>
+              <button class="btn-heart ${isWishlisted ? 'saved' : ''}" onclick="toggleWishlist(${book.id}, event)" title="${isWishlisted ? 'Remove from Saved' : 'Save Book'}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+              </button>
+            </div>
+
+            ${book.is_sold ? '<div class="sold-ribbon">SOLD</div>' : ''}
+
+            <!-- Procedural 3D Book Jacket -->
+            <div class="jacket-spine" style="background: ${theme.bg};">
+              <div class="jacket-category" style="color: ${theme.color};">${theme.category}</div>
+              <div class="jacket-title">${escapeHTML(book.title)}</div>
+              <div class="jacket-author">&bull; ${escapeHTML(book.author)} &bull;</div>
+            </div>
+          </div>
+
+          <!-- Card Content Body -->
+          <div class="card-body">
+            <div class="card-info-col">
+              <h3 class="book-title" title="${escapeHTML(book.title)}">${escapeHTML(book.title)}</h3>
+              <div class="book-author">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>by ${escapeHTML(book.author)}</span>
+              </div>
+
+              <!-- Seller Tag -->
+              <div class="seller-pill">
+                <span class="seller-initial">${sellerInitial}</span>
+                <span>${sellerName}</span>
+              </div>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="card-pricing">
+              <div class="pricing-meta">
+                <span class="original-price">Rs. ${originalPrice.toLocaleString()}</span>
+                <span class="save-badge">Save ${savePercent}%</span>
+              </div>
+              <div class="price-main-row">
+                <span class="current-price">Rs. ${currentPrice.toLocaleString()}</span>
+                <div class="meetup-tag">
+                  <span>Zero Fees</span>
+                  Campus Meetup
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card-actions-col">
+              <div class="card-actions">
+                <button class="btn-details" onclick="showBookDetails(${book.id})">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                  <span>Details</span>
+                </button>
+
+                <button class="btn-buy" onclick="handleBuyWhatsApp(${book.id})" ${book.is_sold ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/>
+                  </svg>
+                  <span>${book.is_sold ? 'Sold' : 'WhatsApp'}</span>
+                </button>
+              </div>
+
+              <!-- Seller Management Controls (Shown if viewing My Listings or if book belongs to active student) -->
+              ${(AppState.currentTab === 'my-listings' || isOwner) ? `
+                <div class="manage-actions-row">
+                  <button class="btn-action-sm" onclick="toggleBookSoldStatus(${book.id}, ${!book.is_sold})" title="Toggle Sold Status">
+                    ${book.is_sold ? '↺ Mark Avail' : '✓ Mark Sold'}
+                  </button>
+                  <button class="btn-action-sm" onclick="openEditBookModal(${book.id})" title="Edit Book">
+                    ✎ Edit
+                  </button>
+                  <button class="btn-action-sm danger" onclick="handleDeleteBook(${book.id})" title="Delete Book Listing">
+                    🗑 Delete
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
+          </div>
+        </article>
+      `;
+    }
+
+    function getConditionClass(cond) {
+      if (!cond) return 'new';
+      const c = cond.toLowerCase();
+      if (c.includes('new') || c.includes('mint')) return 'new';
+      if (c.includes('good')) return 'good';
+      if (c.includes('old') || c.includes('read') || c.includes('used')) return 'old';
+      return 'bad';
+    }
+
+    function formatConditionLabel(cond) {
+      if (!cond) return '✨ Mint New';
+      const c = cond.toLowerCase();
+      if (c.includes('new') || c.includes('mint')) return '✨ Mint New';
+      if (c.includes('good')) return '🔥 Good';
+      if (c.includes('old') || c.includes('read')) return '📖 Well Read';
+      return '⚠️ Fair';
+    }
+
+    /* Render Active Student Selector in Header & Filter Bar */
+    function renderStudentDropdown() {
+      const select = document.getElementById('activeStudentSelect');
+      const listContainer = document.getElementById('profilesListContainer');
+
+      // Populate Filter Select
+      select.innerHTML = AppState.studentProfiles.map(p => `
+        <option value="${p.id}" ${p.id === AppState.activeUserId ? 'selected' : ''}>
+          ${escapeHTML(p.username)} (${escapeHTML(p.uni_name)} - ID #${p.id})
+        </option>
+      `).join('');
+
+      // Populate Switcher Modal
+      if (listContainer) {
+        listContainer.innerHTML = AppState.studentProfiles.map(p => `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: ${p.id === AppState.activeUserId ? 'var(--brand-soft)' : 'var(--bg-subtle)'}; border: 1px solid ${p.id === AppState.activeUserId ? 'var(--brand-accent)' : 'var(--border-subtle)'}; border-radius: var(--radius-md); cursor: pointer;" onclick="setActiveStudentId(${p.id}); closeModal('profileSwitcherModal');">
+            <div>
+              <strong style="color: var(--text-main); font-size: 0.95rem;">${escapeHTML(p.username)}</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">${escapeHTML(p.uni_name)} &bull; ${escapeHTML(p.phone_number || '')}</div>
+            </div>
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--brand-primary); padding: 3px 8px; border-radius: var(--radius-full); background: var(--bg-surface);">
+              ${p.id === AppState.activeUserId ? 'Active (ID #' + p.id + ')' : 'Switch to #' + p.id}
+            </span>
+          </div>
+        `).join('');
+      }
+    }
+
+    /* Render Active User In Header Pill */
+    function renderActiveUserProfile() {
+      const current = getStudentProfile(AppState.activeUserId);
+      const name = `${current.username} (ID #${current.id})`;
+      const initial = current.username.charAt(0).toUpperCase();
+
+      document.getElementById('userNameDisplay').textContent = name;
+      document.getElementById('userAvatar').textContent = initial;
+
+      // Update Sell modal user_id default
+      const sellUserIdInput = document.getElementById('newBookUserId');
+      if (sellUserIdInput) sellUserIdInput.value = AppState.activeUserId;
+    }
+
+    /* Render Filter Tags Row */
+    function renderActiveFilters() {
+      const tagContainer = document.getElementById('activeFilterTags');
+      const tags = [];
+
+      if (AppState.searchQuery.trim()) {
+        tags.push(`Search: "${AppState.searchQuery}" <button onclick="clearSearch()">&times;</button>`);
+      }
+      if (AppState.selectedCategory !== 'all') {
+        tags.push(`Category: ${AppState.selectedCategory.toUpperCase()} <button onclick="resetCategory()">&times;</button>`);
+      }
+      if (AppState.selectedCondition !== 'all') {
+        tags.push(`Condition: ${AppState.selectedCondition} <button onclick="setConditionFilter('all', null)">&times;</button>`);
+      }
+      if (AppState.selectedPrice !== 'all') {
+        tags.push(`Price: ${AppState.selectedPrice} <button onclick="setPriceFilter('all', null)">&times;</button>`);
+      }
+
+      tagContainer.innerHTML = tags.map(t => `<span class="active-pill">${t}</span>`).join('');
+      document.getElementById('savedCount').textContent = AppState.wishlistIds.length;
+    }
+
+    /* ==========================================================================
+       Event Handlers & Interactivity
+       ========================================================================== */
+    function navigateTab(tabName) {
+      AppState.currentTab = tabName;
+
+      document.getElementById('tabMarketplace').classList.toggle('active', tabName === 'marketplace');
+      document.getElementById('tabMyListings').classList.toggle('active', tabName === 'my-listings');
+
+      if (tabName === 'my-listings') {
+        fetchUserListings(AppState.activeUserId).then(() => renderApp());
+      } else {
+        renderApp();
+      }
+    }
+
+    function setViewMode(mode) {
+      AppState.viewMode = mode;
+      localStorage.setItem('unibooks_view_mode', mode);
+      document.getElementById('btnGridView').classList.toggle('active', mode === 'grid');
+      document.getElementById('btnListView').classList.toggle('active', mode === 'list');
+      document.getElementById('booksContainer').classList.toggle('list-view', mode === 'list');
+    }
+
+    function setCategory(catKey, element) {
+      AppState.selectedCategory = catKey;
+      if (element) {
+        document.querySelectorAll('.cat-pill').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+      }
+      renderApp();
+    }
+
+    function resetCategory() {
+      AppState.selectedCategory = 'all';
+      document.querySelectorAll('.cat-pill').forEach((el, idx) => el.classList.toggle('active', idx === 0));
+      renderApp();
+    }
+
+    function setConditionFilter(cond, element) {
+      AppState.selectedCondition = cond;
+      if (element) {
+        element.parentElement.querySelectorAll('.chip-filter').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+      } else {
+        // Reset chips in UI
+        const chips = document.querySelectorAll('.filter-group:first-child .chip-filter');
+        chips.forEach((el, idx) => el.classList.toggle('active', idx === 0));
+      }
+      renderApp();
+    }
+
+    function setPriceFilter(range, element) {
+      AppState.selectedPrice = range;
+      if (element) {
+        element.parentElement.querySelectorAll('.chip-filter').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+      } else {
+        const chips = document.querySelectorAll('.filter-group:nth-child(2) .chip-filter');
+        chips.forEach((el, idx) => el.classList.toggle('active', idx === 0));
+      }
+      renderApp();
+    }
+
+    function handleHideSoldToggle(checked) {
+      AppState.hideSold = checked;
+      renderApp();
+    }
+
+    function handleSortChange(sortVal) {
+      AppState.sortBy = sortVal;
+      renderApp();
+    }
+
+    let searchDebounceTimer = null;
+    function handleSearchInput(query) {
+      AppState.searchQuery = query;
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        // Trigger server-side title filter if query >= 3 chars
+        if (query.trim().length >= 3) {
+          fetchMarketplaceBooks(query.trim()).then(() => renderApp());
+        } else if (query.trim().length === 0) {
+          fetchMarketplaceBooks('').then(() => renderApp());
+        } else {
+          renderApp();
+        }
+      }, 300);
+    }
+
+    function handleQuickSearch(query) {
+      const mainInput = document.getElementById('filterSearchInput');
+      if (mainInput) {
+        mainInput.value = query;
+        handleSearchInput(query);
+      }
+    }
+
+    function clearSearch() {
+      AppState.searchQuery = '';
+      document.getElementById('filterSearchInput').value = '';
+      const quick = document.getElementById('navQuickSearch');
+      if (quick) quick.value = '';
+      fetchMarketplaceBooks('').then(() => renderApp());
+    }
+
+    function resetAllFilters() {
+      AppState.searchQuery = '';
+      AppState.selectedCategory = 'all';
+      AppState.selectedCondition = 'all';
+      AppState.selectedPrice = 'all';
+      AppState.hideSold = true;
+      document.getElementById('filterSearchInput').value = '';
+      document.getElementById('hideSoldCheckbox').checked = true;
+      resetCategory();
+      setConditionFilter('all', null);
+      setPriceFilter('all', null);
+      fetchMarketplaceBooks('').then(() => renderApp());
+    }
+
+    function handleStudentProfileChange(userIdStr) {
+      setActiveStudentId(parseInt(userIdStr, 10));
+    }
+
+    function setActiveStudentId(id) {
+      AppState.activeUserId = id;
+      localStorage.setItem('unibooks_active_user_id', id);
+      showToast(`Active profile set to student #${id}`, 'info');
+
+      renderStudentDropdown();
+      renderActiveUserProfile();
+
+      if (AppState.currentTab === 'my-listings') {
+        fetchUserListings(id).then(() => renderApp());
+      } else {
+        renderApp();
+      }
+    }
+
+    function setManualStudentId() {
+      const val = parseInt(document.getElementById('manualStudentId').value, 10);
+      if (val && val > 0) {
+        setActiveStudentId(val);
+        closeModal('profileSwitcherModal');
+      } else {
+        showToast('Please enter a valid Student ID number', 'error');
+      }
+    }
+
+    function toggleWishlist(bookId, event) {
+      if (event) event.stopPropagation();
+      const idx = AppState.wishlistIds.indexOf(bookId);
+      if (idx > -1) {
+        AppState.wishlistIds.splice(idx, 1);
+        showToast('Removed from saved wishlist', 'info');
+      } else {
+        AppState.wishlistIds.push(bookId);
+        showToast('Added to saved wishlist!', 'success');
+      }
+      localStorage.setItem('unibooks_wishlist', JSON.stringify(AppState.wishlistIds));
+      renderApp();
+    }
+
+    async function refreshCurrentView() {
+      const btn = document.getElementById('btnRefresh');
+      btn.classList.add('spinning');
+      await checkApiConnection();
+
+      if (AppState.currentTab === 'my-listings') {
+        await fetchUserListings(AppState.activeUserId);
+      } else {
+        await fetchMarketplaceBooks(AppState.searchQuery);
+      }
+
+      setTimeout(() => {
+        btn.classList.remove('spinning');
+        renderApp();
+        showToast('Listings refreshed from FastAPI backend!', 'success');
+      }, 350);
+    }
+
+    /* ==========================================================================
+       Form Submissions: Create Book, Update Book, Create User
+       ========================================================================== */
+
+    /* POST /book/ */
+    async function handleCreateBookSubmit(event) {
+      event.preventDefault();
+      const submitBtn = document.getElementById('btnSubmitSellBook');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Listing Book...';
+
+      const payload = {
+        title: document.getElementById('newBookTitle').value.trim(),
+        author: document.getElementById('newBookAuthor').value.trim(),
+        price: parseInt(document.getElementById('newBookPrice').value, 10),
+        condition: document.getElementById('newBookCondition').value,
+        is_sold: false,
+        user_id: parseInt(document.getElementById('newBookUserId').value, 10)
+      };
+
+      try {
+        const res = await apiRequest('/book/', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        showToast(res.message || 'Book listed successfully on Campus Marketplace!', 'success');
+        closeModal('sellBookModal');
+        document.getElementById('sellBookForm').reset();
+
+        // Refresh listings
+        await fetchMarketplaceBooks();
+        if (AppState.currentTab === 'my-listings') {
+          await fetchUserListings(AppState.activeUserId);
+        }
+        renderApp();
+      } catch (err) {
+        showToast(`Failed to list book: ${err.message}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'List Textbook Now';
+      }
+    }
+
+    /* POST /user/ */
+    async function handleCreateUserSubmit(event) {
+      event.preventDefault();
+      const submitBtn = document.getElementById('btnSubmitJoinUser');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Registering Profile...';
+
+      const payload = {
+        username: document.getElementById('regUsername').value.trim(),
+        email: document.getElementById('regEmail').value.trim(),
+        uni_name: document.getElementById('regUniName').value.trim(),
+        phone_number: document.getElementById('regPhone').value.trim()
+      };
+
+      try {
+        const res = await apiRequest('/user/', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        const newUser = res.user;
+        showToast(res.message || `Welcome to UniBookStore, ${newUser.username}!`, 'success');
+
+        // Add to local student profiles list if permitted name
+        const exists = AppState.studentProfiles.find(p => p.id === newUser.id);
+        if (!exists) {
+          AppState.studentProfiles.push({
+            id: newUser.id,
+            username: newUser.username,
+            uni_name: newUser.uni_name,
+            phone_number: newUser.phone_number,
+            email: newUser.email
+          });
+        }
+
+        // Set as active student profile
+        setActiveStudentId(newUser.id);
+
+        closeModal('joinUserModal');
+        document.getElementById('joinUserForm').reset();
+      } catch (err) {
+        showToast(`Registration failed: ${err.message}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Profile';
+      }
+    }
+
+    /* PATCH /book/{id} */
+    async function handleUpdateBookSubmit(event) {
+      event.preventDefault();
+      const bookId = document.getElementById('editBookId').value;
+      const submitBtn = document.getElementById('btnSubmitEditBook');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Updating...';
+
+      const payload = {
+        title: document.getElementById('editBookTitle').value.trim(),
+        author: document.getElementById('editBookAuthor').value.trim(),
+        price: parseInt(document.getElementById('editBookPrice').value, 10),
+        condition: document.getElementById('editBookCondition').value,
+        is_sold: document.getElementById('editBookIsSold').value === 'true',
+        user_id: parseInt(document.getElementById('editBookUserId').value, 10)
+      };
+
+      try {
+        const res = await apiRequest(`/book/${bookId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(payload)
+        });
+
+        showToast(res.message || 'Book updated successfully!', 'success');
+        closeModal('editBookModal');
+
+        // Refresh views
+        await fetchMarketplaceBooks();
+        if (AppState.currentTab === 'my-listings') {
+          await fetchUserListings(AppState.activeUserId);
+        }
+        renderApp();
+      } catch (err) {
+        showToast(`Update failed: ${err.message}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save Changes';
+      }
+    }
+
+    /* PATCH /book/{id}/is_sold */
+    async function toggleBookSoldStatus(bookId, newSoldStatus) {
+      try {
+        const res = await apiRequest(`/book/${bookId}/is_sold?is_sold=${newSoldStatus}`, {
+          method: 'PATCH'
+        });
+
+        showToast(res.message || `Book marked as ${newSoldStatus ? 'SOLD' : 'AVAILABLE'}`, 'success');
+        await fetchMarketplaceBooks();
+        if (AppState.currentTab === 'my-listings') {
+          await fetchUserListings(AppState.activeUserId);
+        }
+        renderApp();
+      } catch (err) {
+        showToast(`Status update failed: ${err.message}`, 'error');
+      }
+    }
+
+    /* DELETE /book/{id} */
+    async function handleDeleteBook(bookId) {
+      if (!confirm(`Are you sure you want to delete book listing #${bookId}?`)) return;
+
+      try {
+        const res = await apiRequest(`/book/${bookId}`, {
+          method: 'DELETE'
+        });
+
+        showToast(res.message || 'Book deleted from database', 'info');
+        await fetchMarketplaceBooks();
+        if (AppState.currentTab === 'my-listings') {
+          await fetchUserListings(AppState.activeUserId);
+        }
+        renderApp();
+      } catch (err) {
+        showToast(`Delete failed: ${err.message}`, 'error');
+      }
+    }
+
+    /* Open Edit Modal with Pre-filled Book Data */
+    async function openEditBookModal(bookId) {
+      try {
+        // Fetch fresh single book data using GET /book/{id}
+        const res = await apiRequest(`/book/${bookId}`);
+        const book = (res.book && res.book[0]) || res.book;
+
+        document.getElementById('editBookId').value = book.id;
+        document.getElementById('editBookTitle').value = book.title;
+        document.getElementById('editBookAuthor').value = book.author;
+        document.getElementById('editBookPrice').value = book.price;
+        document.getElementById('editBookCondition').value = book.condition;
+        document.getElementById('editBookIsSold').value = book.is_sold ? 'true' : 'false';
+        document.getElementById('editBookUserId').value = book.user_id;
+
+        openModal('editBookModal');
+      } catch (err) {
+        showToast(`Could not load book for edit: ${err.message}`, 'error');
+      }
+    }
+
+    /* Show Book Details Modal (GET /book/{id}) */
+    async function showBookDetails(bookId) {
+      try {
+        const res = await apiRequest(`/book/${bookId}`);
+        const book = (res.book && res.book[0]) || res.book;
+        const theme = getBookJacketTheme(book.title, book.author);
+        const sellerProfile = getStudentProfile(book.user_id);
+        const sellerPhone = sellerProfile.phone_number;
+
+        const content = `
+          <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+            <div style="width: 140px; height: 190px; border-radius: var(--radius-md); background: ${theme.bg}; display: flex; flex-direction: column; justify-content: space-between; padding: 14px 10px; color: white; text-align: center; box-shadow: var(--shadow-md);">
+              <div style="font-size: 0.65rem; color: ${theme.color}; text-transform: uppercase; font-weight: 700;">${theme.category}</div>
+              <div style="font-family: var(--font-display); font-size: 0.92rem; font-weight: 700; line-height: 1.2;">${escapeHTML(book.title)}</div>
+              <div style="font-size: 0.68rem; opacity: 0.85;">${escapeHTML(book.author)}</div>
+            </div>
+
+            <div style="flex: 1; min-width: 200px;">
+              <span class="condition-badge ${getConditionClass(book.condition)}" style="margin-bottom: 10px;">${formatConditionLabel(book.condition)}</span>
+              <h3 style="font-size: 1.3rem; font-weight: 800; line-height: 1.25; margin-bottom: 6px;">${escapeHTML(book.title)}</h3>
+              <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 14px;">by ${escapeHTML(book.author)}</div>
+
+              <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px;">
+                <span style="font-size: 1.6rem; font-weight: 800; color: var(--brand-primary);">Rs. ${Number(book.price).toLocaleString()}</span>
+                <span style="font-size: 0.82rem; color: var(--text-muted); text-decoration: line-through;">Rs. ${Math.round(book.price * 1.8).toLocaleString()}</span>
+              </div>
+
+              <div style="background: var(--bg-subtle); padding: 12px; border-radius: var(--radius-md); font-size: 0.84rem;">
+                <div style="margin-bottom: 4px;"><strong>Seller:</strong> ${escapeHTML(sellerProfile.username)} &bull; ID #${sellerProfile.id}</div>
+                <div style="margin-bottom: 4px;"><strong>Campus:</strong> ${escapeHTML(sellerProfile.uni_name)}</div>
+                <div><strong>Status:</strong> ${book.is_sold ? '<span style="color:var(--status-danger); font-weight:700;">SOLD OUT</span>' : '<span style="color:var(--status-success); font-weight:700;">AVAILABLE FOR HANDOFF</span>'}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 14px; font-size: 0.84rem; color: var(--text-muted);">
+            <div><strong>Listed On:</strong> ${book.created_at || 'Recently on Campus'}</div>
+            <div><strong>Meetup Policy:</strong> Verified campus handoff, pay on physical inspection with zero middleman fees.</div>
+          </div>
+        `;
+
+        document.getElementById('bookDetailsContent').innerHTML = content;
+
+        // Set WhatsApp CTA button action
+        const buyBtn = document.getElementById('btnDetailsBuyWhatsApp');
+        buyBtn.onclick = () => handleBuyWhatsApp(book.id);
+        buyBtn.style.display = book.is_sold ? 'none' : 'inline-flex';
+
+        openModal('bookDetailsModal');
+      } catch (err) {
+        showToast(`Could not load details: ${err.message}`, 'error');
+      }
+    }
+
+    /* WhatsApp Direct Contact Generator */
+    function handleBuyWhatsApp(bookId) {
+      const book = AppState.marketplaceBooks.find(b => b.id === bookId) || 
+                   AppState.userListings.find(b => b.id === bookId);
+      if (!book) return;
+
+      const sellerProfile = getStudentProfile(book.user_id);
+      let rawPhone = sellerProfile.phone_number;
+      // Normalize Pakistani phone to international format 923...
+      let cleanPhone = rawPhone.replace(/\D/g, '');
+      if (cleanPhone.startsWith('03')) cleanPhone = '92' + cleanPhone.substring(1);
+      if (!cleanPhone.startsWith('92')) cleanPhone = '92' + cleanPhone;
+
+      const message = `Assalam-o-Alaikum! I saw your textbook listing "${book.title}" by ${book.author} listed for Rs. ${book.price} on UniBookStore Campus Marketplace. Is it still available for a campus meetup handoff?`;
+      const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+
+      window.open(waUrl, '_blank');
+      showToast('Opening WhatsApp with seller contact message...', 'info');
+    }
+
+    /* ==========================================================================
+       Modal Control Helpers
+       ========================================================================== */
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+
+      // Prepopulate settings modal if opened
+      if (id === 'settingsModal') {
+        document.getElementById('cfgApiBaseUrl').value = AppState.apiBaseUrl;
+        document.getElementById('cfgApiKey').value = AppState.apiKey;
+      }
+      if (id === 'sellBookModal') {
+        document.getElementById('newBookUserId').value = AppState.activeUserId;
+      }
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    }
+
+    // Close modal on background click
+    window.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('active');
+      }
+    });
+
+    // Close on Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+      }
+    });
+
+    /* ==========================================================================
+       Settings & Configuration Handler
+       ========================================================================== */
+    function handleSaveSettings(event) {
+      event.preventDefault();
+      const newUrl = document.getElementById('cfgApiBaseUrl').value.trim();
+      const newKey = document.getElementById('cfgApiKey').value.trim();
+
+      AppState.apiBaseUrl = newUrl;
+      AppState.apiKey = newKey;
+
+      localStorage.setItem('unibooks_api_url', newUrl);
+      localStorage.setItem('unibooks_api_key', newKey);
+
+      closeModal('settingsModal');
+      showToast('Settings saved! Re-testing API connection...', 'success');
+      refreshCurrentView();
+    }
+
+    async function testApiConnection() {
+      const tempUrl = document.getElementById('cfgApiBaseUrl').value.trim();
+      const tempKey = document.getElementById('cfgApiKey').value.trim();
+
+      try {
+        const res = await fetch(`${tempUrl.replace(/\/$/, '')}/book/?limit=1`, {
+          headers: { 'x-api-key': tempKey }
+        });
+        if (res.ok) {
+          showToast('✅ Connection verified! FastAPI responded with HTTP 200.', 'success');
+        } else {
+          showToast(`❌ Server responded with HTTP ${res.status}: ${res.statusText}`, 'error');
+        }
+      } catch (err) {
+        showToast(`❌ Connection failed: ${err.message}`, 'error');
+      }
+    }
+
+    /* ==========================================================================
+       Dark / Light Theme Toggle
+       ========================================================================== */
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('unibooks_theme', next);
+
+      document.getElementById('themeIconSun').style.display = next === 'dark' ? 'none' : 'block';
+      document.getElementById('themeIconMoon').style.display = next === 'dark' ? 'block' : 'none';
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem('unibooks_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('themeIconSun').style.display = saved === 'dark' ? 'none' : 'block';
+      document.getElementById('themeIconMoon').style.display = saved === 'dark' ? 'block' : 'none';
+    }
+
+    /* ==========================================================================
+       Toast Notification System
+       ========================================================================== */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+
+      const iconSvg = type === 'success' ? 
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' :
+        type === 'error' ?
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>' :
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+
+      toast.innerHTML = `${iconSvg}<span>${escapeHTML(message)}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /* ==========================================================================
+       Application Initialization
+       ========================================================================== */
+    async function initApp() {
+      initTheme();
+      if (AppState.viewMode === 'list') {
+        setViewMode('list');
+      }
+
+      // Inject initial skeleton loaders while pinging
+      const container = document.getElementById('booksContainer');
+      container.innerHTML = Array(4).fill(0).map(() => '<div class="skeleton-card"></div>').join('');
+
+      // Check API health & fetch marketplace data
+      await checkApiConnection();
+      await fetchMarketplaceBooks();
+
+      renderApp();
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
